@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Video Redirect (Autoplay)</title>
+  <style>
+    body{display:flex;align-items:center;justify-content:center;height:100vh;margin:0;background:#0b0b0f;color:#fff;font-family:system-ui,Arial}
+    .container{width:min(960px,95%);max-width:1200px}
+    .video-wrapper{position:relative;border-radius:12px;overflow:hidden;box-shadow:0 12px 40px rgba(0,0,0,0.6)}
+    video{display:block;width:100%;height:auto;background:#000}
+    .overlay-link{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-decoration:none}
+    .cta{pointer-events:none;background:rgba(0,0,0,0.45);padding:10px 16px;border-radius:999px;font-weight:700}
+    .below{margin-top:12px;text-align:center;color:#cfcfd1;font-size:14px}
+    .overlay-link:focus-visible .cta{outline:3px solid rgba(255,255,255,0.15)}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="video-wrapper" data-target="https://example.com/your-destination" data-newtab="false">
+      <video muted playsinline autoplay preload="auto" poster="poster.jpg" loop>
+        <source src="sample.mp4" type="video/mp4">
+        Trình duyệt của bạn không hỗ trợ thẻ video.
+      </video>
+      <a class="overlay-link" href="#" role="link" aria-label="Mở liên kết" tabindex="0">
+        <span class="cta">Nhấn để xem</span>
+      </a>
+    </div>
+    <div class="below">File: <strong>video-redirect.html</strong> — sửa <code>data-target</code>, <code>sample.mp4</code> hoặc <code>poster.jpg</code> theo nhu cầu.</div>
+  </div>
+  <script>
+    (function(){
+      const wrapper = document.querySelector('.video-wrapper');
+      const overlay = wrapper.querySelector('.overlay-link');
+      const video = wrapper.querySelector('video');
+      const TARGET = wrapper.getAttribute('data-target') || null;
+      const NEWTAB = wrapper.getAttribute('data-newtab') === 'true';
+      if (TARGET) overlay.setAttribute('href', TARGET);
+      if (NEWTAB) overlay.setAttribute('target','_blank');
+      if (video) {
+        video.muted = true;
+        const p = video.play();
+        if (p && p.catch) p.catch(()=>{
+          console.log('Autoplay blocked. Video will play on interaction.');
+        });
+      }
+      overlay.addEventListener('click', function(e){
+        if (!TARGET) return;
+        e.preventDefault();
+        if (NEWTAB) window.open(TARGET, '_blank');
+        else window.location.href = TARGET;
+      });
+      overlay.addEventListener('keydown', function(e){
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          if (!TARGET) return;
+          if (NEWTAB) window.open(TARGET, '_blank'); else window.location.href = TARGET;
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
